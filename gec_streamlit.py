@@ -73,7 +73,7 @@ def check_response(error, user_correction):
             {user_correction}
             </student_correction>
             '''
-    response = openai.Completion.create(
+    response = openai.chat.completions.create(
         model='gpt-4o',
         messages=[
             {"role": "system", "content": "You are a helpful assitant helping the teacher of a Spanish 1 course."},
