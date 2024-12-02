@@ -92,46 +92,71 @@ def check_response(error, user_correction):
 # Main Streamlit app
 def main():
     st.title("Corregram: Spanish Writing Improvement Tool")
+    
+    # Initialize session state variables if they don't exist
+    if 'current_error_index' not in st.session_state:
+        st.session_state.current_error_index = 0
+    if 'current_attempt' not in st.session_state:
+        st.session_state.current_attempt = 0
+    if 'error_feedback' not in st.session_state:
+        st.session_state.error_feedback = None
 
     # Essay input
     essay_text = st.text_area("Paste your Spanish essay here:", height=200)
 
-    if st.button("Submit"):
-        # Process the essay and get error feedback from GPT-4o
-        error_feedback = process_essay(essay_text)
+    if st.button("Submit") or st.session_state.error_feedback:
+        # Process the essay only if we haven't already
+        if not st.session_state.error_feedback:
+            st.session_state.error_feedback = process_essay(essay_text)
+            st.session_state.current_error_index = 0
+            st.session_state.current_attempt = 0
 
-        print(error_feedback)
-        print(type(error_feedback))
-
-        for error in error_feedback:
-            st.session_state['attempts'] = 0  # Reset attempts for each error
-            this_error = error['line_1']
-            st.write(f"Error identified: {this_error}")
-
-            # Allow up to 2 attempts to correct each error
-            for i in range(2):
-                index = i + 1
-                user_correction = st.text_input("Try correcting the error above:", key=f"text_{i}")
-                if st.button("Submit correction", key=f"button_{i}"):
-                    correct_response = check_response(error, user_correction)
-                    if 'yes' in correct_response.strip().lower():
-                        success = error[f'response_{index}_correct']
-                        st.success(success)
-                        break
-                    else:
-                        fail = error[f'response_{index}_incorrect']
-                        st.warning(f"{fail}")
-                        if index == 1:
-                            st.warning("Try again!")
-
-                else:  # If two attempts fail
+        # Get current error
+        error = st.session_state.error_feedback[st.session_state.current_error_index]
+        
+        # Display current error
+        st.write(f"Error identified: {error['line_1']}")
+        
+        # Handle current attempt
+        user_correction = st.text_input(
+            "Try correcting the error above:",
+            key=f"correction_{st.session_state.current_error_index}_{st.session_state.current_attempt}"
+        )
+        
+        if st.button("Submit correction", key=f"submit_{st.session_state.current_error_index}_{st.session_state.current_attempt}"):
+            correct_response = check_response(error, user_correction)
+            
+            if 'yes' in correct_response.strip().lower():
+                st.success(error[f'response_{st.session_state.current_attempt + 1}_correct'])
+                # Move to next error
+                if st.session_state.current_error_index < len(st.session_state.error_feedback) - 1:
+                    st.session_state.current_error_index += 1
+                    st.session_state.current_attempt = 0
+                else:
+                    st.success("You've completed all corrections!")
+                st.rerun()
+            else:
+                st.warning(error[f'response_{st.session_state.current_attempt + 1}_incorrect'])
+                if st.session_state.current_attempt < 1:  # Allow for second attempt
+                    st.session_state.current_attempt += 1
+                    st.rerun()
+                else:
+                    # Show final explanation
                     st.write(f"Your sentence: {error['error_orig']}")
                     st.write(f"Correct version: {error['error_corrected']}")
                     st.write(f"Explanation: {error['explanation']}")
+                    # Move to next error
+                    if st.session_state.current_error_index < len(st.session_state.error_feedback) - 1:
+                        st.session_state.current_error_index += 1
+                        st.session_state.current_attempt = 0
+                    else:
+                        st.success("You've completed all corrections!")
+                    st.rerun()
 
-        # Option to rewrite the essay and resubmit
-        if st.button("If you would like to try again, Rewrite Essay & Resubmit"):
-            st.session_state.clear()
+    # Reset button
+    if st.button("Reset and Start Over"):
+        st.session_state.clear()
+        st.rerun()
 
 if __name__ == "__main__":
     main()
