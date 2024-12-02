@@ -186,13 +186,20 @@ def main():
                     correct_response = check_response(error, user_correction)
                     
                     if 'yes' in correct_response.strip().lower():
-                        st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
                         if st.session_state.current_error_index < len(current_errors) - 1:
+                            # Show success message for current correction
+                            st.success(error[f'response_{st.session_state.current_attempt}_correct'])
+                            
+                            # Move to next error
                             st.session_state.current_error_index += 1
                             st.session_state.current_attempt = 1
-                            st.session_state.show_response = True
+                            
+                            # Display next error
+                            next_error = current_errors[st.session_state.current_error_index]
+                            st.write(f"Error identified: {next_error['line_1']}")
+                            
+                            st.session_state.show_response = False
                             st.session_state.previous_incorrect = False
-                            st.rerun()
                         else:
                             st.session_state.completed = True
                             st.rerun()
