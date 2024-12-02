@@ -53,7 +53,8 @@ def process_essay(essay_text):
     output = response.choices[0].message.content.strip()
 
     vals = re.findall(r'(?<=<JSON_out>)([\s\S]*?)(?=</JSON_out>)', output)
-    return vals[0]
+    output = json.loads(vals[0].strip())
+    return output
 
 def check_response(error, user_correction):
     prompt = f'''Given the following sentence containing an error, a previously identified target correction, and the student's \
