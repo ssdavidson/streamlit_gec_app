@@ -205,6 +205,7 @@ def main():
                         else:
                             # Immediately show full correction with proper line breaks
                             st.session_state.current_response = (
+                                "That was a good try, but there's still an issue.\n\n"
                                 f"Your sentence:\n{error['error_orig']}\n\n"
                                 f"Correct version:\n{error['error_corrected']}\n\n"
                                 f"Explanation:\n{error['explanation']}"
