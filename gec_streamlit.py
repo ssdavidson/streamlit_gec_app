@@ -86,7 +86,7 @@ def check_response(error, user_correction):
     output = response.choices[0].message.content.strip()
 
     vals = re.findall(r'(?<=<response>)([\s\S]*?)(?=</response>)', output)
-    output = json.loads(vals[0].strip())
+    output = vals[0].strip()
     return output
 
 # Main Streamlit app
