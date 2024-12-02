@@ -3,7 +3,7 @@ import streamlit as st
 import re
 
 # Initialize OpenAI API key
-openai.api_key = 'your-openai-api-key'
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Function to process essay through GPT-4o (place your GPT-4o logic here)
 def process_essay(essay_text):
