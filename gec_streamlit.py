@@ -186,8 +186,11 @@ def main():
                     correct_response = check_response(error, user_correction)
                     
                     if 'yes' in correct_response.strip().lower():
+                        st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
+                        st.session_state.show_response = True
+                        st.session_state.previous_incorrect = False
                         if st.session_state.current_error_index < len(current_errors) - 1:
-                            # Show success message for current correction
+                            # Display success message
                             st.success(error[f'response_{st.session_state.current_attempt}_correct'])
                             
                             # Move to next error
@@ -197,9 +200,7 @@ def main():
                             # Display next error
                             next_error = current_errors[st.session_state.current_error_index]
                             st.write(f"Error identified: {next_error['line_1']}")
-                            
-                            st.session_state.show_response = False
-                            st.session_state.previous_incorrect = False
+                            st.rerun()
                         else:
                             st.session_state.completed = True
                             st.rerun()
@@ -219,7 +220,8 @@ def main():
                             )
                             st.session_state.show_final_practice = True
                             st.session_state.previous_incorrect = False
-                    st.rerun()
+                        st.rerun()
+
 
     # Reset button at bottom of page
     if st.button("Reset and Start Over"):
