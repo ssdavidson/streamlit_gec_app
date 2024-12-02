@@ -170,7 +170,7 @@ def main():
             if not st.session_state.show_final_practice:
                 # Show "Not quite..." message if previous attempt was incorrect
                 if st.session_state.previous_incorrect:
-                    st.write("Not quite... Try again with the hint above.")
+                    st.write("Try again with the hint above.")
                 
                 # Handle current attempt
                 prompt_text = "Try correcting the error above:"
