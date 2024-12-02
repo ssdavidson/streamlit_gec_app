@@ -108,6 +108,15 @@ def main():
         st.session_state.show_final_practice = False
     if 'previous_incorrect' not in st.session_state:
         st.session_state.previous_incorrect = False
+    if 'completed' not in st.session_state:
+        st.session_state.completed = False
+
+    if st.session_state.completed:
+        st.success("Great job! Hopefully you have found these exercises helpful.")
+        if st.button("Reset and Start Over"):
+            st.session_state.clear()
+            st.rerun()
+        return
 
     # Essay input
     essay_text = st.text_area("Paste your Spanish essay here:", height=200)
@@ -143,16 +152,16 @@ def main():
                     if st.button("Submit final practice", key=f"submit_final_{st.session_state.current_error_index}"):
                         correct_response = check_response(error, final_practice)
                         if 'yes' in correct_response.strip().lower():
-                            st.success("Excellent! You've correctly applied the explanation. Let's move to the next error.")
-                            st.session_state.show_final_practice = False
-                            st.session_state.show_response = False
-                            st.session_state.previous_incorrect = False
                             if st.session_state.current_error_index < len(current_errors) - 1:
                                 st.session_state.current_error_index += 1
                                 st.session_state.current_attempt = 1
+                                st.session_state.show_final_practice = False
+                                st.session_state.show_response = False
+                                st.session_state.previous_incorrect = False
+                                st.rerun()
                             else:
-                                st.success("You've completed all corrections!")
-                            st.rerun()
+                                st.session_state.completed = True
+                                st.rerun()
                         else:
                             st.error("That's not quite right. Please review the explanation and try again.")
                     return
@@ -178,13 +187,15 @@ def main():
                     
                     if 'yes' in correct_response.strip().lower():
                         st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
-                        st.session_state.show_response = True
-                        st.session_state.previous_incorrect = False
                         if st.session_state.current_error_index < len(current_errors) - 1:
                             st.session_state.current_error_index += 1
                             st.session_state.current_attempt = 1
+                            st.session_state.show_response = True
+                            st.session_state.previous_incorrect = False
+                            st.rerun()
                         else:
-                            st.session_state.current_response += "\n\nYou've completed all corrections!"
+                            st.session_state.completed = True
+                            st.rerun()
                     else:
                         st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_incorrect']
                         st.session_state.show_response = True
@@ -192,15 +203,17 @@ def main():
                         if st.session_state.current_attempt < 2:
                             st.session_state.current_attempt += 1
                         else:
-                            # Immediately show full correction
-                            st.session_state.current_response = f"Your sentence: {error['error_orig']}\n"
-                            st.session_state.current_response += f"Correct version: {error['error_corrected']}\n"
-                            st.session_state.current_response += f"Explanation: {error['explanation']}"
+                            # Immediately show full correction with proper line breaks
+                            st.session_state.current_response = (
+                                f"Your sentence:\n{error['error_orig']}\n\n"
+                                f"Correct version:\n{error['error_corrected']}\n\n"
+                                f"Explanation:\n{error['explanation']}"
+                            )
                             st.session_state.show_final_practice = True
                             st.session_state.previous_incorrect = False
                     st.rerun()
 
-    # Reset button
+    # Reset button at bottom of page
     if st.button("Reset and Start Over"):
         st.session_state.clear()
         st.rerun()
