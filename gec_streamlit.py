@@ -136,6 +136,14 @@ def main():
         if st.session_state.current_error_index < len(current_errors):
             error = current_errors[st.session_state.current_error_index]
             
+            # If we have a success message from previous correction, show it first
+            if hasattr(st.session_state, 'success_message'):
+                st.success(st.session_state.success_message)
+                st.write(st.session_state.next_error)
+                del st.session_state.success_message
+                del st.session_state.next_error
+                return
+            
             # Display current error
             st.write(f"Error identified: {error['line_1']}")
             
@@ -186,10 +194,6 @@ def main():
                     correct_response = check_response(error, user_correction)
                     
                     if 'yes' in correct_response.strip().lower():
-                        st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
-                        st.session_state.show_response = True
-                        st.session_state.previous_incorrect = False
-                        
                         if st.session_state.current_error_index < len(current_errors) - 1:
                             # Store success message and next error in session state
                             st.session_state.success_message = error[f'response_{st.session_state.current_attempt}_correct']
@@ -200,13 +204,6 @@ def main():
                             st.session_state.current_error_index += 1
                             st.session_state.current_attempt = 1
                             
-                            # Display messages in correct order
-                            st.success(st.session_state.success_message)
-                            st.write(st.session_state.next_error)
-                            
-                            # Clear the messages from session state
-                            del st.session_state.success_message
-                            del st.session_state.next_error
                             st.rerun()
                         else:
                             st.session_state.completed = True
