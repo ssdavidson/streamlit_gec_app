@@ -142,10 +142,10 @@ def main():
                 st.write(st.session_state.next_error)
                 del st.session_state.success_message
                 del st.session_state.next_error
-                return
             
-            # Display current error
-            st.write(f"Error identified: {error['line_1']}")
+            # Display current error if we're not showing a previous success message
+            if not hasattr(st.session_state, 'success_message'):
+                st.write(f"Error identified: {error['line_1']}")
             
             # If we're showing a response, display it before the next input
             if st.session_state.show_response:
