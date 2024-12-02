@@ -100,6 +100,7 @@ def main():
         error_feedback = process_essay(essay_text)
 
         print(error_feedback)
+        print(type(error_feedback))
 
         for error in error_feedback:
             st.session_state['attempts'] = 0  # Reset attempts for each error
