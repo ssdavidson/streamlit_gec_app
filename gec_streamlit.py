@@ -111,7 +111,7 @@ def main():
             # Allow up to 2 attempts to correct each error
             for i in range(2):
                 index = i + 1
-                user_correction = st.text_input("Try correcting the error above:")
+                user_correction = st.text_input("Try correcting the error above:", key=f"text_{i}")
                 if st.button("Submit correction", key=f"button_{i}"):
                     correct_response = check_response(error, user_correction)
                     if 'yes' in correct_response.strip().lower():
