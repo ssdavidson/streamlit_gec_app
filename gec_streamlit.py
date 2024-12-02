@@ -50,7 +50,7 @@ def process_essay(essay_text):
         ],
     )
 
-    output = response.choices[0].text.strip()
+    output = response.choices[0].message.content.strip()
 
     vals = re.findall(r'<JSON_out>(.*?)</JSON_out>', output)
     return vals[0]
@@ -82,7 +82,7 @@ def check_response(error, user_correction):
         temperature=0.5
     )
 
-    output = response.choices[0].text.strip()
+    output = response.choices[0].message.content.strip()
 
     vals = re.findall(r'<response>(.*?)</response>', output)
     return vals[0]
