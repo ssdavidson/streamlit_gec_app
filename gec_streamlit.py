@@ -12,7 +12,7 @@ def process_essay(essay_text):
             for a student whose native language is English. You want to provide your students with feedback about mistakes \
             in their writing. Given an original essay written by a student, please correct any obvious errors in the essay, \
             and explain to the student why you made the corrections you made. Explain the differences between them in terms \
-            of grammar in a way a student can understand.
+            of grammar in a way a student can understand. Do not correct factual errors, only grammatical or semantic errors.
 
             Your goal is to provide feedback in a way that can be automatically presented to students, and that gives the \
             students an opportunity to correct their own mistakes. Please format your response as in JSON format containing \
@@ -54,7 +54,7 @@ def process_essay(essay_text):
 
     print(output)
 
-    vals = re.findall(r'<JSON_out>(.*?)</JSON_out>', output)
+    vals = re.findall(r'(?<=<JSON_out>)([\s\S]*?)(?=</JSON_out>)', output)
     return vals[0]
 
 def check_response(error, user_correction):
@@ -86,7 +86,7 @@ def check_response(error, user_correction):
 
     output = response.choices[0].message.content.strip()
 
-    vals = re.findall(r'<response>(.*?)</response>', output)
+    vals = re.findall(r'(?<=<response>)([\s\S]*?)(?=</response>)', output)
     return vals[0]
 
 # Main Streamlit app
