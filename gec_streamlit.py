@@ -187,10 +187,11 @@ def main():
                     
                     if 'yes' in correct_response.strip().lower():
                         st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
+                        st.write(st.session_state.current_response)
                         if st.session_state.current_error_index < len(current_errors) - 1:
                             st.session_state.current_error_index += 1
                             st.session_state.current_attempt = 1
-                            st.session_state.show_response = True
+                            st.session_state.show_response = False
                             st.session_state.previous_incorrect = False
                             st.rerun()
                         else:
