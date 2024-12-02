@@ -52,6 +52,8 @@ def process_essay(essay_text):
 
     output = response.choices[0].message.content.strip()
 
+    print(output)
+
     vals = re.findall(r'<JSON_out>(.*?)</JSON_out>', output)
     return vals[0]
 
