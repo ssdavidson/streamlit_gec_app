@@ -99,6 +99,8 @@ def main():
         # Process the essay and get error feedback from GPT-4o
         error_feedback = process_essay(essay_text)
 
+        print(error_feedback)
+
         for error in error_feedback:
             st.session_state['attempts'] = 0  # Reset attempts for each error
             this_error = error['line_1']
