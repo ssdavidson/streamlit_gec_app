@@ -1,6 +1,6 @@
 import openai
 import streamlit as st
-import re
+import re, json
 
 # Initialize OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -10,7 +10,7 @@ def process_essay(essay_text):
     # Call the GPT-4o model to find and explain errors
     prompt = f'''You are writing corrections \
             for a student whose native language is English. You want to provide your students with feedback about mistakes \
-            in their writing. Given an original essay written by a student, please correct any obvious errors in the essay, \
+            in their writing. Given an original essay written by a student, please correct any grammatical errors in the essay, \
             and explain to the student why you made the corrections you made. Explain the differences between them in terms \
             of grammar in a way a student can understand. Do not correct factual errors, only grammatical or semantic errors.
 
@@ -52,13 +52,11 @@ def process_essay(essay_text):
 
     output = response.choices[0].message.content.strip()
 
-    print(output)
-
     vals = re.findall(r'(?<=<JSON_out>)([\s\S]*?)(?=</JSON_out>)', output)
     return vals[0]
 
 def check_response(error, user_correction):
-    prompt = f'''Given the following sentence containing and error, a previously identified target correction, and the student's \
+    prompt = f'''Given the following sentence containing an error, a previously identified target correction, and the student's \
             correction attempt, please identify if the student successfully corrected the error or not. Your response \
             should be a simple "yes" or "no" between <response> tags.
 
@@ -87,7 +85,8 @@ def check_response(error, user_correction):
     output = response.choices[0].message.content.strip()
 
     vals = re.findall(r'(?<=<response>)([\s\S]*?)(?=</response>)', output)
-    return vals[0]
+    output = json.loads(vals[0].strip())
+    return output
 
 # Main Streamlit app
 def main():
