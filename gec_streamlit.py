@@ -104,6 +104,8 @@ def main():
         st.session_state.show_response = False
     if 'current_response' not in st.session_state:
         st.session_state.current_response = ""
+    if 'show_final_practice' not in st.session_state:
+        st.session_state.show_final_practice = False
 
     # Essay input
     essay_text = st.text_area("Paste your Spanish essay here:", height=200)
@@ -129,46 +131,67 @@ def main():
             # If we're showing a response, display it before the next input
             if st.session_state.show_response:
                 st.write(st.session_state.current_response)
+                
+                # Show final practice if needed
+                if st.session_state.show_final_practice:
+                    final_practice = st.text_input(
+                        "Please rewrite the sentence with the correction explained above:",
+                        key=f"final_practice_{st.session_state.current_error_index}"
+                    )
+                    if st.button("Submit final practice", key=f"submit_final_{st.session_state.current_error_index}"):
+                        correct_response = check_response(error, final_practice)
+                        if 'yes' in correct_response.strip().lower():
+                            st.success("Excellent! You've correctly applied the explanation. Let's move to the next error.")
+                            st.session_state.show_final_practice = False
+                            st.session_state.show_response = False
+                            if st.session_state.current_error_index < len(current_errors) - 1:
+                                st.session_state.current_error_index += 1
+                                st.session_state.current_attempt = 1
+                            else:
+                                st.success("You've completed all corrections!")
+                            st.rerun()
+                        else:
+                            st.error("That's not quite right. Please review the explanation and try again.")
+                    return
+                
                 st.session_state.show_response = False
             
-            # Handle current attempt
-            user_correction = st.text_input(
-                "Try correcting the error above:",
-                key=f"correction_{st.session_state.current_error_index}_{st.session_state.current_attempt}"
-            )
-            
-            if st.button("Submit correction", key=f"submit_{st.session_state.current_error_index}_{st.session_state.current_attempt}"):
-                correct_response = check_response(error, user_correction)
+            # Don't show input if we're in final practice mode
+            if not st.session_state.show_final_practice:
+                # Handle current attempt
+                user_correction = st.text_input(
+                    "Try correcting the error above:",
+                    key=f"correction_{st.session_state.current_error_index}_{st.session_state.current_attempt}"
+                )
                 
-                if 'yes' in correct_response.strip().lower():
-                    st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
-                    st.session_state.show_response = True
-                    if st.session_state.current_error_index < len(current_errors) - 1:
-                        st.session_state.current_error_index += 1
-                        st.session_state.current_attempt = 1
-                    else:
-                        st.session_state.current_response += "\n\nYou've completed all corrections!"
-                else:
-                    st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_incorrect']
-                    st.session_state.show_response = True
-                    if st.session_state.current_attempt < 2:
-                        st.session_state.current_attempt += 1
-                    else:
-                        st.session_state.current_response += f"\n\nYour sentence: {error['error_orig']}\n"
-                        st.session_state.current_response += f"Correct version: {error['error_corrected']}\n"
-                        st.session_state.current_response += f"Explanation: {error['explanation']}"
+                if st.button("Submit correction", key=f"submit_{st.session_state.current_error_index}_{st.session_state.current_attempt}"):
+                    correct_response = check_response(error, user_correction)
+                    
+                    if 'yes' in correct_response.strip().lower():
+                        st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
+                        st.session_state.show_response = True
                         if st.session_state.current_error_index < len(current_errors) - 1:
                             st.session_state.current_error_index += 1
                             st.session_state.current_attempt = 1
                         else:
                             st.session_state.current_response += "\n\nYou've completed all corrections!"
-                st.rerun()
+                    else:
+                        st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_incorrect']
+                        st.session_state.show_response = True
+                        if st.session_state.current_attempt < 2:
+                            st.session_state.current_attempt += 1
+                        else:
+                            # Immediately show full correction
+                            st.session_state.current_response = f"Your sentence: {error['error_orig']}\n"
+                            st.session_state.current_response += f"Correct version: {error['error_corrected']}\n"
+                            st.session_state.current_response += f"Explanation: {error['explanation']}"
+                            st.session_state.show_final_practice = True
+                    st.rerun()
 
     # Reset button
     if st.button("Reset and Start Over"):
         st.session_state.clear()
         st.rerun()
-
 
 
 if __name__ == "__main__":
