@@ -112,7 +112,7 @@ def main():
             for i in range(2):
                 index = i + 1
                 user_correction = st.text_input("Try correcting the error above:")
-                if st.button("Submit"):
+                if st.button("Submit correction", key=f"button_{i}"):
                     correct_response = check_response(error, user_correction)
                     if 'yes' in correct_response.strip().lower():
                         success = error[f'response_{index}_correct']
