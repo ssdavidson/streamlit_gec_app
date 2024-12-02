@@ -112,9 +112,17 @@ def main():
         st.session_state.completed = False
     if 'final_essay_submitted' not in st.session_state:
         st.session_state.final_essay_submitted = False
+    if 'original_essay' not in st.session_state:
+        st.session_state.original_essay = ""
 
     if st.session_state.completed:
         st.success("Great job correcting all the errors! Now, try to rewrite your essay incorporating all the corrections.")
+        
+        # Display original essay in a container with a header
+        st.subheader("Your Original Essay:")
+        st.write(st.session_state.original_essay)
+        
+        st.subheader("Your Revised Essay:")
         final_essay = st.text_area("Enter your revised essay here:", height=200)
         
         if st.button("Submit Final Essay"):
@@ -130,8 +138,9 @@ def main():
     essay_text = st.text_area("Paste your Spanish essay here:", height=200)
 
     if st.button("Submit") or st.session_state.error_feedback:
-        # Process the essay only if we haven't already
+        # Store original essay when first submitted
         if not st.session_state.error_feedback:
+            st.session_state.original_essay = essay_text
             st.session_state.error_feedback = process_essay(essay_text)
             st.session_state.current_error_index = 0
             st.session_state.current_attempt = 1
