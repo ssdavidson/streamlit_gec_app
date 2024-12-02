@@ -110,9 +110,17 @@ def main():
         st.session_state.previous_incorrect = False
     if 'completed' not in st.session_state:
         st.session_state.completed = False
+    if 'final_essay_submitted' not in st.session_state:
+        st.session_state.final_essay_submitted = False
 
     if st.session_state.completed:
-        st.success("Great job! Hopefully you have found these exercises helpful.")
+        st.success("Great job correcting all the errors! Now, try to rewrite your essay incorporating all the corrections.")
+        final_essay = st.text_area("Enter your revised essay here:", height=200)
+        
+        if st.button("Submit Final Essay"):
+            st.session_state.final_essay_submitted = True
+            st.success("Congratulations! You've completed the exercise. Your writing skills are improving!")
+            
         if st.button("Reset and Start Over"):
             st.session_state.clear()
             st.rerun()
