@@ -106,6 +106,8 @@ def main():
         st.session_state.current_response = ""
     if 'show_final_practice' not in st.session_state:
         st.session_state.show_final_practice = False
+    if 'previous_incorrect' not in st.session_state:
+        st.session_state.previous_incorrect = False
 
     # Essay input
     essay_text = st.text_area("Paste your Spanish essay here:", height=200)
@@ -144,6 +146,7 @@ def main():
                             st.success("Excellent! You've correctly applied the explanation. Let's move to the next error.")
                             st.session_state.show_final_practice = False
                             st.session_state.show_response = False
+                            st.session_state.previous_incorrect = False
                             if st.session_state.current_error_index < len(current_errors) - 1:
                                 st.session_state.current_error_index += 1
                                 st.session_state.current_attempt = 1
@@ -153,14 +156,20 @@ def main():
                         else:
                             st.error("That's not quite right. Please review the explanation and try again.")
                     return
-                
-                st.session_state.show_response = False
             
             # Don't show input if we're in final practice mode
             if not st.session_state.show_final_practice:
+                # Show "Not quite..." message if previous attempt was incorrect
+                if st.session_state.previous_incorrect:
+                    st.write("Not quite... Try again with the hint above.")
+                
                 # Handle current attempt
+                prompt_text = "Try correcting the error above:"
+                if st.session_state.current_attempt == 2:
+                    prompt_text = "Let's try one more time with the hint above:"
+                
                 user_correction = st.text_input(
-                    "Try correcting the error above:",
+                    prompt_text,
                     key=f"correction_{st.session_state.current_error_index}_{st.session_state.current_attempt}"
                 )
                 
@@ -170,6 +179,7 @@ def main():
                     if 'yes' in correct_response.strip().lower():
                         st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_correct']
                         st.session_state.show_response = True
+                        st.session_state.previous_incorrect = False
                         if st.session_state.current_error_index < len(current_errors) - 1:
                             st.session_state.current_error_index += 1
                             st.session_state.current_attempt = 1
@@ -178,6 +188,7 @@ def main():
                     else:
                         st.session_state.current_response = error[f'response_{st.session_state.current_attempt}_incorrect']
                         st.session_state.show_response = True
+                        st.session_state.previous_incorrect = True
                         if st.session_state.current_attempt < 2:
                             st.session_state.current_attempt += 1
                         else:
@@ -186,6 +197,7 @@ def main():
                             st.session_state.current_response += f"Correct version: {error['error_corrected']}\n"
                             st.session_state.current_response += f"Explanation: {error['explanation']}"
                             st.session_state.show_final_practice = True
+                            st.session_state.previous_incorrect = False
                     st.rerun()
 
     # Reset button
