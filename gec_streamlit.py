@@ -191,18 +191,22 @@ def main():
                         st.session_state.previous_incorrect = False
                         
                         if st.session_state.current_error_index < len(current_errors) - 1:
-                            # First store the next error info
+                            # Store success message and next error in session state
+                            st.session_state.success_message = error[f'response_{st.session_state.current_attempt}_correct']
                             next_error = current_errors[st.session_state.current_error_index + 1]
+                            st.session_state.next_error = f"Error identified: {next_error['line_1']}"
                             
-                            # Update state for next error
+                            # Update index and attempt counters
                             st.session_state.current_error_index += 1
                             st.session_state.current_attempt = 1
                             
-                            # Display success message for current error first
-                            st.success(error[f'response_{st.session_state.current_attempt}_correct'])
+                            # Display messages in correct order
+                            st.success(st.session_state.success_message)
+                            st.write(st.session_state.next_error)
                             
-                            # Then display the next error
-                            st.write(f"Error identified: {next_error['line_1']}")
+                            # Clear the messages from session state
+                            del st.session_state.success_message
+                            del st.session_state.next_error
                             st.rerun()
                         else:
                             st.session_state.completed = True
