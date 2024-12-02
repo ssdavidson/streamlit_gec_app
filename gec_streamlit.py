@@ -112,21 +112,22 @@ def main():
             for i in range(2):
                 index = i + 1
                 user_correction = st.text_input("Try correcting the error above:")
-                correct_response = check_response(error, user_correction)
-                if 'yes' in correct_response.strip().lower():
-                    success = error[f'response_{index}_correct']
-                    st.success(success)
-                    break
-                else:
-                    fail = error[f'response_{index}_incorrect']
-                    st.warning(f"{fail}")
-                    if index == 1:
-                        st.warning("Try again!")
+                if st.button("Submit"):
+                    correct_response = check_response(error, user_correction)
+                    if 'yes' in correct_response.strip().lower():
+                        success = error[f'response_{index}_correct']
+                        st.success(success)
+                        break
+                    else:
+                        fail = error[f'response_{index}_incorrect']
+                        st.warning(f"{fail}")
+                        if index == 1:
+                            st.warning("Try again!")
 
-            else:  # If two attempts fail
-                st.write(f"Your sentence: {error['error_orig']}")
-                st.write(f"Correct version: {error['error_corrected']}")
-                st.write(f"Explanation: {error['explanation']}")
+                else:  # If two attempts fail
+                    st.write(f"Your sentence: {error['error_orig']}")
+                    st.write(f"Correct version: {error['error_corrected']}")
+                    st.write(f"Explanation: {error['explanation']}")
 
         # Option to rewrite the essay and resubmit
         if st.button("If you would like to try again, Rewrite Essay & Resubmit"):
