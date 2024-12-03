@@ -150,6 +150,14 @@ def main():
         if isinstance(current_errors, dict):
             current_errors = [current_errors]
         
+        # Check if there are any errors
+        if not current_errors or len(current_errors) == 0:
+            st.success("I didn't find any grammatical errors in your essay. Impressive! Feel free to submit another essay if you'd like more practice.")
+            if st.button("Reset and Start Over"):
+                st.session_state.clear()
+                st.rerun()
+            return
+        
         if st.session_state.current_error_index < len(current_errors):
             error = current_errors[st.session_state.current_error_index]
             
